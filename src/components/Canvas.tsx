@@ -5,6 +5,7 @@ import { Vector2DClass } from "../classes/Vector2DClass";
 import { Layer, Stage } from "react-konva";
 import State from "./State";
 import Transition from "./Transition";
+import Konva from 'konva';
 
 export function Canvas() {
 
@@ -145,6 +146,28 @@ export function Canvas() {
     setTransitions(updatedTransitions);
   };
 
+  const createDragBoundFunc = (index: number) => {
+    return function(this: Konva.Node, pos: Konva.Vector2d): Konva.Vector2d {
+      const updatedStates = [...states];
+      let { x, y } = pos;
+  
+      let alignedStateX = null;
+      let alignedStateY = null;
+  
+      updatedStates.forEach((state, i) => {
+        if (i !== index) {
+          if (Math.abs(x - state.position.x) <= 50) alignedStateX = state.position.x;
+          if (Math.abs(y - state.position.y) <= 50) alignedStateY = state.position.y;
+        }
+      });
+  
+      x = alignedStateX ?? x;
+      y = alignedStateY ?? y;
+  
+      return { x, y };
+    };
+  };
+
   return (
     <Stage
       width={window.innerWidth / 2}
@@ -160,7 +183,8 @@ export function Canvas() {
             state={state}
             draggable={true}
             onClick={(e) => handleStateClick(state, e)}
-            onDragMove={(e) => handleStateDragMove(e, index)} />
+            onDragMove={(e) => handleStateDragMove(e, index)}
+            dragBoundFunc={createDragBoundFunc(index)} />
         ))}
         {transitions.map((transition, index) => (
           <Transition key={`transition-${index}`} transition={transition} />

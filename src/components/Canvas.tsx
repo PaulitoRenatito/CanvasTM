@@ -14,18 +14,6 @@ export function Canvas() {
   const [isDraggingTransition, setIsDraggingTransition] = useState<boolean>(false);
   const [draggingTransition, setDraggingTransition] = useState<TransitionClass | null>(null);
 
-  var state1 = new StateClass('1', new Vector2DClass(300, 200));
-  var state2 = new StateClass('2', new Vector2DClass(300, 500));
-  var state3 = new StateClass('3', new Vector2DClass(600, 500));
-
-  var transition1 = new TransitionClass('t1', state1, state2);
-  var transition2 = new TransitionClass('t2', state3, state2);
-
-  useEffect(() => {
-    setStates([state1, state2, state3]);
-    setTransitions([transition1, transition2]);
-  }, []);
-
   const handleCanvasDoubleClick = (e: any) => {
 
     if (e.evt.shiftKey || isDraggingTransition) return;
@@ -111,7 +99,7 @@ export function Canvas() {
           'dragging',
           draggingTransition!.startState,
           new StateClass(
-            'dragging',
+            '',
             new Vector2DClass(
               pointerPosition.x,
               pointerPosition.y))));
@@ -119,24 +107,39 @@ export function Canvas() {
   };
 
   const handleStateDragMove = (e: any, index: number) => {
-
     if (e.evt.shiftKey || isDraggingTransition) return;
 
-    // Atualizar a posição do State durante o arrasto
     const updatedStates = [...states];
-    updatedStates[index] = new StateClass(updatedStates[index].name, new Vector2DClass(e.target.x(), e.target.y()));
+    const draggedState = updatedStates[index];
+    const { x, y } = e.target.position();
+
+    let alignedStateX = null;
+    let alignedStateY = null;
+
+    updatedStates.forEach((state, i) => {
+      if (i === index) return;
+
+      if (Math.abs(x - state.position.x) <= 50) alignedStateX = state.position.x;
+      if (Math.abs(y - state.position.y) <= 50) alignedStateY = state.position.y;
+    });
+
+    updatedStates[index] = new StateClass(
+      draggedState.name,
+      new Vector2DClass(alignedStateX ?? x, alignedStateY ?? y)
+    );
+
     setStates(updatedStates);
 
     // Recalcular transições
     const updatedTransitions = transitions.map((transition) => {
-      if (transition.startState === states[index]) {
-        // Atualizar a posição de início da transição
-        return new TransitionClass(transition.name, updatedStates[index], transition.endState);
-      } else if (transition.endState === states[index]) {
-        // Atualizar a posição de término da transição
-        return new TransitionClass(transition.name, transition.startState, updatedStates[index]);
-      }
-      return transition;
+      const isStart = transition.startState === states[index];
+      const isEnd = transition.endState === states[index];
+
+      return new TransitionClass(
+        transition.name,
+        isStart ? updatedStates[index] : transition.startState,
+        isEnd ? updatedStates[index] : transition.endState
+      );
     });
 
     setTransitions(updatedTransitions);

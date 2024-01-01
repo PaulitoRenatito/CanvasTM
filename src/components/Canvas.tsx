@@ -46,8 +46,10 @@ export function Canvas() {
   };
 
   const handleStateClick = (state: StateClass, e: any) => {
+
     // Verifique se a tecla Shift está pressionada
     if (isDraggingTransition) {
+
       const stage = e.target.getStage();
 
       const pointerPosition = Vector2DClass.fromKonvaVector2D(stage.getPointerPosition());
@@ -55,6 +57,7 @@ export function Canvas() {
 
       // Se encontrarmos um estado de destino, crie uma transição
       if (endState) {
+        console.log(endState);
         const newTransition = new TransitionClass('NewTransition', draggingTransition!.startState, endState);
         setTransitions((prevTransitions) => [...prevTransitions, newTransition]);
       }
@@ -65,7 +68,6 @@ export function Canvas() {
     }
     else if (e.evt.shiftKey) {
       // Registre o estado de início da transição
-      console.log("if")
       setIsDraggingTransition(true);
       setDraggingTransition(
         new TransitionClass(
@@ -77,60 +79,44 @@ export function Canvas() {
     }
   };
 
+  const handleStageClick = (e: any) => {
+    if (isDraggingTransition) {
+      // Limpe o estado de arrastar transição
+      setDraggingTransition(null);
+      setIsDraggingTransition(false);
+    }
+  }
+
   const handleMouseMove = (e: any) => {
 
     if (!isDraggingTransition) return;
 
     const stage = e.target.getStage();
     const pointerPosition = Vector2DClass.fromKonvaVector2D(stage.getPointerPosition());
-    setDraggingTransition(
-      new TransitionClass(
-        'dragging',
-        draggingTransition!.startState,
-        new StateClass(
+
+    const endState = states.find((state) => state.isPointInside(pointerPosition));
+
+    if (endState) {
+      setDraggingTransition(
+        new TransitionClass(
           'dragging',
-          new Vector2DClass(
-            pointerPosition.x,
-            pointerPosition.y))));
+          draggingTransition!.startState,
+          endState
+        )
+      );
+    }
+    else {
+      setDraggingTransition(
+        new TransitionClass(
+          'dragging',
+          draggingTransition!.startState,
+          new StateClass(
+            'dragging',
+            new Vector2DClass(
+              pointerPosition.x,
+              pointerPosition.y))));
+    }
   };
-
-  // const handleStageDragMove = (e: any) => {
-  //   // Verifique se estamos arrastando uma transição
-  //   if (draggingTransition.startState) {
-  //     // Atualize a transição com o estado final à medida que o mouse é movido
-  //     const pointerPosition = e.target.getPointerPosition();
-  //     const updatedTransition = new TransitionClass(
-  //       'NewTransition',
-  //       draggingTransition.startState,
-  //       new StateClass('', new Vector2DClass(pointerPosition.x, pointerPosition.y))
-  //     );
-
-  //     // Atualize a última transição no estado
-  //     setTransitions((prevTransitions) => {
-  //       const updatedTransitions = [...prevTransitions];
-  //       updatedTransitions[prevTransitions.length - 1] = updatedTransition;
-  //       return updatedTransitions;
-  //     });
-  //   }
-  // };
-
-  // const handleStageDragEnd = (e: any) => {
-  //   // Verifique se estamos arrastando uma transição
-  //   if (draggingTransition.startState) {
-  //     // Encontre o estado de destino com base na posição do mouse no final do arrasto
-  //     const pointerPosition = Vector2DClass.fromKonvaVector2D(e.target.getPointerPosition());
-  //     const endState = states.find((state) => state.isPointInside(pointerPosition));
-
-  //     // Se encontrarmos um estado de destino, crie uma transição
-  //     if (endState) {
-  //       const newTransition = new TransitionClass('NewTransition', draggingTransition.startState, endState);
-  //       setTransitions((prevTransitions) => [...prevTransitions, newTransition]);
-  //     }
-
-  //     // Limpe o estado de arrastar transição
-  //     setDraggingTransition({ startState: null });
-  //   }
-  // };
 
   const handleStateDragMove = (e: any, index: number) => {
 
@@ -162,6 +148,7 @@ export function Canvas() {
       height={800}
       onDblClick={handleCanvasDoubleClick}
       onMouseMove={handleMouseMove}
+      onClick={handleStageClick}
       style={{ backgroundColor: 'white' }}>
       <Layer>
         {states.map((state, index) => (

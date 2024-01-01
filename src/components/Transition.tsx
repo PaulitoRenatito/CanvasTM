@@ -9,8 +9,26 @@ function Transition({ transition }: TransitionProps) {
 
     const angle = calculateAngle(transition.startState.position, transition.endState.position);
 
+    let points;
+
     const startPosition = pointOnCircle(transition.startState.position, 50, angle);
     const endPosition = pointOnCircle(transition.endState.position, -50, angle);
+
+    if (transition.startState === transition.endState) {
+        const loopRadius = 100;
+
+        points = [
+            startPosition.x,
+            startPosition.y,
+            transition.startState.position.x,
+            transition.startState.position.y - loopRadius,
+            endPosition.x,
+            endPosition.y,
+        ];
+    }
+    else {
+        points = [startPosition.x, startPosition.y, endPosition.x, endPosition.y];
+    }
 
     const x = (startPosition.x + endPosition.x) / 2;
     const y = (startPosition.y + endPosition.y) / 2;
@@ -25,12 +43,8 @@ function Transition({ transition }: TransitionProps) {
     return (
         <Group>
             <Arrow
-                points={[
-                    startPosition.x,
-                    startPosition.y,
-                    endPosition.x,
-                    endPosition.y,
-                ]}
+                points={points}
+                tension={1}
                 stroke={'black'}
             />
             <Text text={transition.name} x={textAdjustedX} y={textAdjustedY} width={20} align='center' verticalAlign='middle' />

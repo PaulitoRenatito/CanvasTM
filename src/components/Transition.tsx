@@ -40,6 +40,8 @@ function Transition({ transition }: TransitionProps) {
     const textAdjustedX = x + textDistanceAboveArrow * Math.cos(angleInRadians);
     const textAdjustedY = y + textDistanceAboveArrow * Math.sin(angleInRadians);
 
+    const width = transition.name.length * 6;
+
     return (
         <Group>
             <Arrow
@@ -47,7 +49,7 @@ function Transition({ transition }: TransitionProps) {
                 tension={1}
                 stroke={'black'}
             />
-            <Text text={transition.name} x={textAdjustedX} y={textAdjustedY} width={20} align='center' verticalAlign='middle' />
+            <Text text={transition.name} x={textAdjustedX} y={textAdjustedY} width={width} align='center' verticalAlign='middle' />
         </Group>
     );
 };

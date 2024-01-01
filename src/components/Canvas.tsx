@@ -153,14 +153,14 @@ export function Canvas() {
       <Layer>
         {states.map((state, index) => (
           <State
-            key={state.name}
+            key={`state-${index}`}
             state={state}
             draggable={true}
             onClick={(e) => handleStateClick(state, e)}
             onDragMove={(e) => handleStateDragMove(e, index)} />
         ))}
-        {transitions.map((transition) => (
-          <Transition key={transition.name} transition={transition} />
+        {transitions.map((transition, index) => (
+          <Transition key={`transition-${index}`} transition={transition} />
         ))}
         {isDraggingTransition && <Transition key={'dragging'} transition={draggingTransition!} />}
       </Layer>

@@ -7,6 +7,8 @@ import State from "./State";
 import Transition from "./Transition";
 import Konva from 'konva';
 
+import './canvas.css'
+
 export function Canvas() {
 
   const [states, setStates] = useState<StateClass[]>([]);
@@ -87,7 +89,7 @@ export function Canvas() {
 
     if (endState) {
       console.log("TESTE");
-      
+
       setDraggingTransition(
         new TransitionClass(
           ' ',
@@ -166,12 +168,12 @@ export function Canvas() {
 
   return (
     <Stage
+      className="canvas"
       width={window.innerWidth / 2}
       height={800}
       onDblClick={handleCanvasDoubleClick}
       onMouseMove={handleMouseMove}
-      onClick={handleStageClick}
-      style={{ backgroundColor: 'white' }}>
+      onClick={handleStageClick}>
       <Layer>
         {states.map((state, index) => (
           <State

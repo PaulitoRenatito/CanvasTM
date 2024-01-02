@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StateClass } from "../classes/StateClass";
 import { TransitionClass } from "../classes/TransitionClass";
 import { Vector2DClass } from "../classes/Vector2DClass";
@@ -86,9 +86,11 @@ export function Canvas() {
     const endState = states.find((state) => state.isPointInside(pointerPosition));
 
     if (endState) {
+      console.log("TESTE");
+      
       setDraggingTransition(
         new TransitionClass(
-          'dragging',
+          ' ',
           draggingTransition!.startState,
           endState
         )
@@ -97,13 +99,17 @@ export function Canvas() {
     else {
       setDraggingTransition(
         new TransitionClass(
-          'dragging',
+          ' ',
           draggingTransition!.startState,
           new StateClass(
-            '',
+            ' ',
             new Vector2DClass(
               pointerPosition.x,
-              pointerPosition.y))));
+              pointerPosition.y
+            )
+          )
+        )
+      );
     }
   };
 
@@ -114,19 +120,9 @@ export function Canvas() {
     const draggedState = updatedStates[index];
     const { x, y } = e.target.position();
 
-    let alignedStateX = null;
-    let alignedStateY = null;
-
-    updatedStates.forEach((state, i) => {
-      if (i === index) return;
-
-      if (Math.abs(x - state.position.x) <= 50) alignedStateX = state.position.x;
-      if (Math.abs(y - state.position.y) <= 50) alignedStateY = state.position.y;
-    });
-
     updatedStates[index] = new StateClass(
       draggedState.name,
-      new Vector2DClass(alignedStateX ?? x, alignedStateY ?? y)
+      new Vector2DClass(x, y)
     );
 
     setStates(updatedStates);
@@ -147,23 +143,23 @@ export function Canvas() {
   };
 
   const createDragBoundFunc = (index: number) => {
-    return function(this: Konva.Node, pos: Konva.Vector2d): Konva.Vector2d {
+    return function (this: Konva.Node, pos: Konva.Vector2d): Konva.Vector2d {
       const updatedStates = [...states];
       let { x, y } = pos;
-  
+
       let alignedStateX = null;
       let alignedStateY = null;
-  
+
       updatedStates.forEach((state, i) => {
         if (i !== index) {
           if (Math.abs(x - state.position.x) <= 50) alignedStateX = state.position.x;
           if (Math.abs(y - state.position.y) <= 50) alignedStateY = state.position.y;
         }
       });
-  
+
       x = alignedStateX ?? x;
       y = alignedStateY ?? y;
-  
+
       return { x, y };
     };
   };

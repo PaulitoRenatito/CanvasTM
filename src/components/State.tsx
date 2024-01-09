@@ -1,6 +1,7 @@
 import { Circle, Group, Text } from 'react-konva';
 import { StateClass } from '../classes/StateClass';
 import Konva from 'konva';
+import { useState } from 'react';
 
 interface StateProps {
     state: StateClass;
@@ -12,12 +13,35 @@ interface StateProps {
 
 function State({ state, draggable = false, onClick, onDragMove, dragBoundFunc }: StateProps) {
 
+    const [hoverColor, setHoverColor] = useState<string>('black');
+
     const radius = 50;
 
     return (
-        <Group draggable={draggable} x={state.position.x} y={state.position.y} onClick={onClick} onDragMove={onDragMove} dragBoundFunc={dragBoundFunc}>
-            <Circle radius={radius} fill="transparent" stroke={'black'} />
-            <Text text={state.name} x={-radius} y={-radius / 10} width={radius * 2} align='center' verticalAlign='middle' />
+        <Group
+            draggable={draggable}
+            x={state.position.x}
+            y={state.position.y}
+            onClick={onClick}
+            onDragMove={onDragMove}
+            dragBoundFunc={dragBoundFunc}
+            onMouseEnter={(_e) => setHoverColor('blue')}
+            onMouseLeave={(_e) => setHoverColor('black')}
+        >
+            <Circle
+                radius={radius}
+                fill="transparent"
+                stroke={hoverColor}
+            />
+            <Text
+                text={state.name}
+                x={-radius}
+                y={-radius / 10}
+                width={radius * 2}
+                align='center'
+                verticalAlign='middle'
+                fill={hoverColor}
+            />
         </Group>
     );
 };

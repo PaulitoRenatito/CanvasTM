@@ -93,14 +93,23 @@ function Transition({ transition }: TransitionProps) {
             draggable
             dragBoundFunc={createDragBoundFunc}
             onMouseEnter={(_e) => setHoverColor('blue')}
-            onMouseLeave={(_e) => setHoverColor('black')}>
+            onMouseLeave={(_e) => setHoverColor('black')}
+        >
             <Arrow
                 points={points}
                 tension={1}
                 stroke={hoverColor}
                 strokeWidth={2}
             />
-            <Text text={transition.name} x={textAdjustedX} y={textAdjustedY} width={width} align='center' verticalAlign='middle' fill={hoverColor}/>
+            <Text
+                text={transition.name}
+                x={textAdjustedX}
+                y={textAdjustedY}
+                width={width}
+                align='center'
+                verticalAlign='middle'
+                fill={hoverColor}
+            />
         </Group>
     );
 };

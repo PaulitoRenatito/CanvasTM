@@ -70,7 +70,7 @@ export function Canvas() {
     }
   };
 
-  const handleStageClick = (e: any) => {
+  const handleStageClick = (_e: any) => {
     if (isDraggingTransition) {
       // Limpe o estado de arrastar transição
       setDraggingTransition(null);

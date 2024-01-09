@@ -166,29 +166,37 @@ export function Canvas() {
     };
   };
 
+  const handleClear = () => {
+    setStates([]);
+    setTransitions([]);
+  }
+
   return (
-    <Stage
-      className="canvas"
-      width={window.innerWidth / 2}
-      height={800}
-      onDblClick={handleCanvasDoubleClick}
-      onMouseMove={handleMouseMove}
-      onClick={handleStageClick}>
-      <Layer>
-        {states.map((state, index) => (
-          <State
-            key={`state-${index}`}
-            state={state}
-            draggable={true}
-            onClick={(e) => handleStateClick(state, e)}
-            onDragMove={(e) => handleStateDragMove(e, index)}
-            dragBoundFunc={createDragBoundFunc(index)} />
-        ))}
-        {transitions.map((transition, index) => (
-          <Transition key={`transition-${index}`} transition={transition} />
-        ))}
-        {isDraggingTransition && <Transition key={'dragging'} transition={draggingTransition!} />}
-      </Layer>
-    </Stage>
+    <>
+      <Stage
+        className="canvas"
+        width={window.innerWidth / 2}
+        height={800}
+        onDblClick={handleCanvasDoubleClick}
+        onMouseMove={handleMouseMove}
+        onClick={handleStageClick}>
+        <Layer>
+          {states.map((state, index) => (
+            <State
+              key={`state-${index}`}
+              state={state}
+              draggable={true}
+              onClick={(e) => handleStateClick(state, e)}
+              onDragMove={(e) => handleStateDragMove(e, index)}
+              dragBoundFunc={createDragBoundFunc(index)} />
+          ))}
+          {transitions.map((transition, index) => (
+            <Transition key={`transition-${index}`} transition={transition} />
+          ))}
+          {isDraggingTransition && <Transition key={'dragging'} transition={draggingTransition!} />}
+        </Layer>
+      </Stage>
+      <button onClick={handleClear}>CLEAR</button>
+    </>
   )
 }

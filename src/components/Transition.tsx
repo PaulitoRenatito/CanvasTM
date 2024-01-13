@@ -7,27 +7,40 @@ import { useEffect, useState } from 'react';
 
 interface TransitionProps {
     transition: TransitionClass;
+    radius: number;
 }
-function Transition({ transition }: TransitionProps) {
+function Transition({ transition, radius }: TransitionProps) {
 
     const [hoverColor, setHoverColor] = useState<string>('black');
 
+    const isLoop = transition.startState === transition.endState;
+
     const angle = calculateAngle(transition.startState.position, transition.endState.position);
 
-    const radius = 50;
-    const startStateOffset = -50;
+    const startStateOffset = -radius;
 
-    const startStatePoint = pointOnCircle(transition.startState.position, radius, angle);
-    const endStatePoint = pointOnCircle(transition.endState.position, startStateOffset, angle);
+    const startStatePoint = isLoop ?
+        pointOnCircle(transition.startState.position, radius, angle - 0.8) :
+        pointOnCircle(transition.startState.position, radius, angle);
+    const endStatePoint = isLoop ?
+        pointOnCircle(transition.endState.position, startStateOffset, angle + 0.8) :
+        pointOnCircle(transition.endState.position, startStateOffset, angle);
 
     const [startPosition, setStartPosition] = useState<Vector2DClass>(startStatePoint);
 
     const [endPosition, setEndPosition] = useState<Vector2DClass>(endStatePoint);
 
-    const midpoint = new Vector2DClass(
-        (startPosition.x + endPosition.x) / 2,
-        (startPosition.y + endPosition.y) / 2
-    );
+    const loopRadius = 100;
+
+    const midpoint = isLoop ?
+        new Vector2DClass(
+            (startPosition.x + endPosition.x) / 2,
+            startPosition.y - loopRadius
+        ) :
+        new Vector2DClass(
+            (startPosition.x + endPosition.x) / 2,
+            (startPosition.y + endPosition.y) / 2
+        );
 
     const [arrowMiddle, setArrowMiddle] = useState<Vector2DClass>(midpoint);
 
@@ -41,15 +54,13 @@ function Transition({ transition }: TransitionProps) {
         updatePositions(startStatePoint, endStatePoint, midpoint);
     }, [transition]);
 
-    const loopRadius = 100;
-
-    const points = transition.startState === transition.endState
+    const points = isLoop
         ?
         [
             startPosition.x,
             startPosition.y,
-            transition.startState.position.x,
-            transition.startState.position.y - loopRadius,
+            arrowMiddle.x,
+            arrowMiddle.y,
             endPosition.x,
             endPosition.y,
         ]
@@ -65,28 +76,64 @@ function Transition({ transition }: TransitionProps) {
         const stage = this.getStage()!;
         const pointerPosition = stage.getPointerPosition()!;
 
-        if (Math.abs(midpoint.x - pointerPosition.x) <= 20 && Math.abs(midpoint.y - pointerPosition.y) <= 20) {
-            updatePositions(startStatePoint, endStatePoint, midpoint);
+        if (isLoop) {
+
+            if (Math.abs(midpoint.x - pointerPosition.x) <= 30 && Math.abs(midpoint.y - pointerPosition.y) <= 30) {
+                updatePositions(startStatePoint, endStatePoint, midpoint);
+            }
+            else {
+
+                const newAngle = calculateAngle(transition.startState.position, pointerPosition);
+
+                updatePositions(
+                    pointOnCircle(transition.startState.position, radius, newAngle + 0.8),
+                    pointOnCircle(transition.endState.position, startStateOffset, newAngle + 2.4),
+                    pointerPosition
+                );
+            }
         }
         else {
-            updatePositions(
-                pointOnCircle(transition.startState.position, 50, calculateAngle(transition.startState.position, pointerPosition)),
-                pointOnCircle(transition.endState.position, 50, calculateAngle(transition.endState.position, pointerPosition)),
-                new Vector2DClass(pointerPosition.x, pointerPosition.y)
-            );
+            if (Math.abs(midpoint.x - pointerPosition.x) <= 30 && Math.abs(midpoint.y - pointerPosition.y) <= 30) {
+                updatePositions(startStatePoint, endStatePoint, midpoint);
+            }
+            else {
+                updatePositions(
+                    pointOnCircle(transition.startState.position, radius, calculateAngle(transition.startState.position, pointerPosition)),
+                    pointOnCircle(transition.endState.position, radius, calculateAngle(transition.endState.position, pointerPosition)),
+                    new Vector2DClass(pointerPosition.x, pointerPosition.y)
+                );
+            }
         }
 
         return { x, y };
     };
 
-    const textDistanceAboveArrow = -100;
-
-    const angleInRadians = (angle * Math.PI) / 180;
-
-    const textAdjustedX = arrowMiddle.x + textDistanceAboveArrow * angleInRadians;
-    const textAdjustedY = arrowMiddle.y + textDistanceAboveArrow * angleInRadians;
-
     const width = transition.name.length * 6;
+
+    const calculateTextPosition = (arrowMiddle: Vector2DClass, rotationAngle: number) => {
+
+        const textDistanceAboveArrow = -20;
+
+        let radians;
+        let textAdjustedX;
+        let textAdjustedY;
+
+        if (isLoop) {
+            radians = (rotationAngle * Math.PI) / 180;
+            textAdjustedX = arrowMiddle.x - Math.cos(radians) * (width / 2);
+            textAdjustedY = arrowMiddle.y + Math.sin(radians) * (width / 4) + textDistanceAboveArrow;
+        }
+        else {
+            radians = (rotationAngle * Math.PI) / 180;
+            textAdjustedX = arrowMiddle.x - Math.cos(radians) * (width / 2);
+            textAdjustedY = arrowMiddle.y + Math.sin(radians) * (width / 4) + textDistanceAboveArrow;
+        }
+
+        return { textAdjustedX, textAdjustedY };
+    };
+
+    const rotationAngle = angle;
+    const { textAdjustedX, textAdjustedY } = calculateTextPosition(arrowMiddle, rotationAngle);
 
     return (
         <Group

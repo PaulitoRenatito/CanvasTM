@@ -6,16 +6,16 @@ import { useState } from 'react';
 interface StateProps {
     state: StateClass;
     draggable?: boolean;
+    radius: number;
+    isEndState?: boolean;
     onClick?(e: any): void;
     onDragMove?(e: any): void;
     dragBoundFunc?(this: Konva.Node, pos: Konva.Vector2d): Konva.Vector2d;
 }
 
-function State({ state, draggable = false, onClick, onDragMove, dragBoundFunc }: StateProps) {
+function State({ state, draggable = false, radius, isEndState = false, onClick, onDragMove, dragBoundFunc }: StateProps) {
 
     const [hoverColor, setHoverColor] = useState<string>('black');
-
-    const radius = 50;
 
     return (
         <Group
@@ -33,6 +33,13 @@ function State({ state, draggable = false, onClick, onDragMove, dragBoundFunc }:
                 fill="transparent"
                 stroke={hoverColor}
             />
+            {isEndState &&
+                <Circle
+                    radius={(radius * 0.9)}
+                    fill="transparent"
+                    stroke={hoverColor}
+                />
+            }
             <Text
                 text={state.name}
                 x={-radius}

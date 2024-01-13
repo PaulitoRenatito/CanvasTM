@@ -11,6 +11,8 @@ import './canvas.css'
 
 export function Canvas() {
 
+  const circleRadius = 50;
+
   const [states, setStates] = useState<StateClass[]>([]);
   const [transitions, setTransitions] = useState<TransitionClass[]>([]);
 
@@ -48,7 +50,6 @@ export function Canvas() {
 
       // Se encontrarmos um estado de destino, crie uma transição
       if (endState) {
-        console.log(endState);
         const newTransition = new TransitionClass('NewTransition', draggingTransition!.startState, endState);
         setTransitions((prevTransitions) => [...prevTransitions, newTransition]);
       }
@@ -88,8 +89,6 @@ export function Canvas() {
     const endState = states.find((state) => state.isPointInside(pointerPosition));
 
     if (endState) {
-      console.log("TESTE");
-
       setDraggingTransition(
         new TransitionClass(
           ' ',
@@ -154,8 +153,8 @@ export function Canvas() {
 
       updatedStates.forEach((state, i) => {
         if (i !== index) {
-          if (Math.abs(x - state.position.x) <= 50) alignedStateX = state.position.x;
-          if (Math.abs(y - state.position.y) <= 50) alignedStateY = state.position.y;
+          if (Math.abs(x - state.position.x) <= circleRadius) alignedStateX = state.position.x;
+          if (Math.abs(y - state.position.y) <= circleRadius) alignedStateY = state.position.y;
         }
       });
 
@@ -186,14 +185,15 @@ export function Canvas() {
               key={`state-${index}`}
               state={state}
               draggable={true}
+              radius = {circleRadius}
               onClick={(e) => handleStateClick(state, e)}
               onDragMove={(e) => handleStateDragMove(e, index)}
               dragBoundFunc={createDragBoundFunc(index)} />
           ))}
           {transitions.map((transition, index) => (
-            <Transition key={`transition-${index}`} transition={transition} />
+            <Transition key={`transition-${index}`} transition={transition} radius = {circleRadius}/>
           ))}
-          {isDraggingTransition && <Transition key={'dragging'} transition={draggingTransition!} />}
+          {isDraggingTransition && <Transition key={'dragging'} transition={draggingTransition!} radius = {circleRadius}/>}
         </Layer>
       </Stage>
       <button onClick={handleClear}>CLEAR</button>
